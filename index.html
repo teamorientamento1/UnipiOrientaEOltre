@@ -128,6 +128,32 @@
     </div>
   </div>
 
+  <!-- ✅ MODAL PRIVACY MAGGIORENNI -->
+  <div class="modal-overlay visible" id="privacy-modal-maggiorenni">
+    <div class="modal-content">
+      <h3 class="modal-title">Informativa per il trattamento dei dati personali (per maggiorenni)</h3>
+      <div class="privacy-content" id="privacy-content-maggiorenni">
+        <p>Caricamento informativa in corso...</p>
+      </div>
+      <div class="modal-actions" style="margin-top: 1rem;">
+        <button class="btn" id="privacy-accept-btn-maggiorenni" disabled>Ho letto e accetto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ MODAL PRIVACY MINORENNI -->
+  <div class="modal-overlay" id="privacy-modal-minorenni">
+    <div class="modal-content">
+      <h3 class="modal-title">Informativa per il trattamento dei dati personali (per minorenni)</h3>
+      <div class="privacy-content" id="privacy-content-minorenni">
+        <p>Caricamento informativa in corso...</p>
+      </div>
+      <div class="modal-actions" style="margin-top: 1rem;">
+        <button class="btn" id="privacy-accept-btn-minorenni" disabled>Ho letto e accetto</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/config.js?v=12" defer></script>
   <script src="js/utils/dom.js?v=12" defer></script>
   <script src="js/utils/validators.js?v=12" defer></script>
@@ -151,5 +177,66 @@
   <script src="js/form-submit-handler.js?v=12" defer></script>
   <script src="js/app.js?v=12" defer></script>
   <script src="js/autofill-fix.js?v=12" defer></script>
+  
+  <!-- ✅ SCRIPT GESTIONE PRIVACY -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modalMaggiorenni = document.getElementById('privacy-modal-maggiorenni');
+      const contentMaggiorenni = document.getElementById('privacy-content-maggiorenni');
+      const acceptBtnMaggiorenni = document.getElementById('privacy-accept-btn-maggiorenni');
+
+      const modalMinorenni = document.getElementById('privacy-modal-minorenni');
+      const contentMinorenni = document.getElementById('privacy-content-minorenni');
+      const acceptBtnMinorenni = document.getElementById('privacy-accept-btn-minorenni');
+
+      if (!modalMaggiorenni || !modalMinorenni) return;
+
+      // Funzione per caricare il testo delle informative
+      const loadPrivacyText = (url, contentElement) => {
+        fetch(url)
+          .then(response => {
+            if (!response.ok) throw new Error('File informativa non trovato.');
+            return response.text();
+          })
+          .then(html => {
+            contentElement.innerHTML = html;
+          })
+          .catch(error => {
+            contentElement.innerHTML = '<p>Errore nel caricamento dell\'informativa. Riprova più tardi.</p>';
+            console.error(error);
+          });
+      };
+      
+      // Carica le informative
+      loadPrivacyText('data/informativa_maggiorenni.html', contentMaggiorenni);
+      loadPrivacyText('data/informativa_minorenni.html', contentMinorenni);
+
+      // Funzione per controllare se l'utente ha scrollato fino in fondo
+      function checkScroll(contentElement, buttonElement) {
+        const isScrolledToEnd = contentElement.scrollHeight - contentElement.scrollTop <= contentElement.clientHeight + 1;
+        if (isScrolledToEnd) {
+          buttonElement.disabled = false;
+        }
+      }
+
+      // Event listener per lo scroll - maggiorenni
+      contentMaggiorenni.addEventListener('scroll', () => checkScroll(contentMaggiorenni, acceptBtnMaggiorenni));
+      
+      // Quando clicca "Ho letto e accetto" sulla prima modal
+      acceptBtnMaggiorenni.addEventListener('click', () => {
+        modalMaggiorenni.classList.remove('visible');
+        modalMinorenni.classList.add('visible');
+      });
+
+      // Event listener per lo scroll - minorenni
+      contentMinorenni.addEventListener('scroll', () => checkScroll(contentMinorenni, acceptBtnMinorenni));
+      
+      // Quando clicca "Ho letto e accetto" sulla seconda modal
+      acceptBtnMinorenni.addEventListener('click', () => {
+        modalMinorenni.classList.remove('visible');
+        // Ora l'utente può accedere al form
+      });
+    });
+  </script>
 </body>
 </html>
